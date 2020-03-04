@@ -21,8 +21,7 @@ This script enables you to control your character in game using a Xbox360 contro
 	- Map to Right Arrow
 7) If you change resolutions ingame at any point while the script is running, you must exit and restart the script
 	for the new resolution values to be recognized.
-	
-	
+
 Default Controls:
 Move = Left Analog Stick
 Mouse Control = Right Analog Stick
@@ -64,12 +63,11 @@ ButtonRight = 6
 ButtonI = 7
 ButtonTab = 8
 ButtonSpace = 2
-ButtonF5 = 4
 PopPotions = 3
 ; END OF CONFIG SECTION -- Don't change anything below this point unless you want
 ; to alter the basic nature of the script.
 #NoEnv							; Prevents bugs caused by environmental variables matching those in the script
-#SingleInstance	                ; Makes it so only one copy can be ran at a time
+#SingleInstance force           ; Makes it so only one copy can be ran at a time
 SendMode Input		            ; Avoids the possible limitations of SendMode Play, increases reliability.
 SetWorkingDir %A_ScriptDir%     ; Sets the script's working directory
 SetDefaultMouseSpeed, 0         ; For character movement without moving the cursor
@@ -77,6 +75,7 @@ SetTitleMatchMode, 3            ; Window title must exactly match Winactive("Pat
 SetFormat, float, 03  			; Omits decimal point from axis position percentages.
 left_flag = 0
 right_flag = 0
+
 ; Calculate the axis displacements that are needed to start moving the cursor:
 JoyThresholdUpper := 50 + JoyThreshold
 JoyThresholdLower := 50 - JoyThreshold
@@ -92,7 +91,6 @@ Hotkey, %JoystickPrefix%%ButtonRight%, ButtonRight
 Hotkey, %JoystickPrefix%%ButtonI%, ButtonI
 Hotkey, %JoystickPrefix%%ButtonTab%, ButtonTab
 Hotkey, %JoystickPrefix%%ButtonSpace%, ButtonSpace
-Hotkey, %JoystickPrefix%%ButtonF5%, ButtonF5
 Hotkey, %JoystickPrefix%%PopPotions%, PopPotions
 Hotkey, %JoystickPrefix%%ButtonCtrlLeft%, ButtonCtrlLeft
 OnExit, Agent_Kill
@@ -162,19 +160,20 @@ if GetKeyState(JoystickPrefix . ButtonRight)
 SetTimer, WaitForRightButtonUp, Off
 MouseClick, right,,, 1, 0, U  ; Release the mouse button.
 return
+
 ; This section contains the Hotkeys that binds the joystick buttons to other actions in the game that don't need held down.
 ButtonI:
 Send, {I}
 return
+
 ButtonTab:
 Send, {Tab}
 return
+
 ButtonSpace:
 Send, {Space}
 return
-ButtonF5:
-Send, {F5}
-return
+
 PopPotions:
 Send, 12345
 return
