@@ -29,7 +29,7 @@ ButtonI = 7
 ButtonTab = 8
 ButtonSpace = 2
 PopPotions = 3
-MainSkill = 4
+ButtonMainSkill = 4
 
 ; END OF CONFIG SECTION -- Don't change anything below this point unless you want
 ; to alter the basic nature of the script.
@@ -60,7 +60,7 @@ Hotkey, %JoystickPrefix%%ButtonTab%, ButtonTab
 Hotkey, %JoystickPrefix%%ButtonSpace%, ButtonSpace
 Hotkey, %JoystickPrefix%%PopPotions%, PopPotions
 Hotkey, %JoystickPrefix%%ButtonCtrlLeft%, ButtonCtrlLeft
-Hotkey, %JoystickPrefix%%MainSkill%, MainSkill
+Hotkey, %JoystickPrefix%%ButtonMainSkill%, MainSkill
 OnExit, Agent_Kill
 	
 WinWaitActive, Path of Exile, , 60   	; this command waits 60 seconds for Path of Exile to be the active window before continuing
@@ -72,8 +72,8 @@ if ErrorLevel
 else
 {
 		Sleep 500												; waits this long before initializing: this solves getting incorrect info
-		x_anchor := 956 - 4 * 50					; sets the upper left x-plane coord in pixels
-		y_anchor := 486 - 4 * 50					; sets the upper left y-plane coord in pixels
+		x_anchor := 956 - 2 * 50					; sets the upper left x-plane coord in pixels
+		y_anchor := 486 - 2 * 50					; sets the upper left y-plane coord in pixels
 }	
 SetTimer, DIII_Move, -1
 SetTimer, DIII_Mouse, -1
@@ -153,7 +153,15 @@ Send, 12345
 return
 
 MainSkill:
-Send, {E}
+Send {e down}
+SetTimer, WaitMainSkillUp, 10
+return
+
+WaitMainSkillUp:
+if GetKeyState(JoystickPrefix . ButtonMainSkill)  
+    return
+Send {e up}
+SetTimer, WaitMainSkillUp, off
 return
 
 ; This timer watches for the triggers to be pressed and converts them into mouse clicks
@@ -297,8 +305,8 @@ DIII_Move:
 	else if (joyX < JoyThresholdLower) OR (joyX > JoyThresholdUpper) OR (joyY < JoyThresholdLower) OR (joyY > JoyThresholdUpper)
 	{
 	
-		x_final := x_anchor + 4 * joyX
-		y_final := y_anchor + 4 * joyY
+		x_final := x_anchor + 2 * joyX
+		y_final := y_anchor + 2 * joyY
 		;MouseGetPos, x_initial, y_initial
 		MouseMove, %x_final%, %y_final%, 0			; Move cursor to direction to be moved towards without clicking
 		GetKeyState, joyZ, %JoystickNumber%JoyZ 
