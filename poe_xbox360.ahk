@@ -1,46 +1,11 @@
-/* 
-													Path of Exile Xbox360 Script
-													by Jared Sigley aka Yelgis
-													uses code from AutoHotkey.com
-															
-															
-															
-															Description:
-This script enables you to control your character in game using a Xbox360 controller on PC. 
-															Instructions:
-1) Dowload the Joystick Test from AutoHotkey  http://www.autohotkey.com/docs/scripts/JoystickTest.htm
-2) Run Joystick Test script to determine the number for your Xbox360 controller
-3) Change the JoystickNumber variable below to whatever number corresponds with your controller
-4) Run Path of Exile Xbox360 script with autohotkey (or as standalone .exe after compiling)
-5) Start Path of Exile
-6) Bind the following commands in game:
-	- Move key to F12 
-	- Town Portal to Up Arrow
-	- Inventory to Left Arrow
-	- Skills Menu to Down Arrow
-	- Map to Right Arrow
-7) If you change resolutions ingame at any point while the script is running, you must exit and restart the script
-	for the new resolution values to be recognized.
-
+/*
 Default Controls:
 Move = Left Analog Stick
 Mouse Control = Right Analog Stick
-Left Mouse/Skill = RT
-Right Mouse/Skill = LT
-1st Skill Slot = RB
-2nd Skill Slot = LB
-3rd Skill Slot = Y
-4th Skill Slot = B
-Potion = X
-Town Portal = D-pad Up
-Inventory = D-pad Left
-Map = D-pad Right
-Skills Menu = D-pad Down
-Game Menu (Esc) = Back
-Banner = Start
-Stand Still = Press Left stick
-Show Items on Ground = Press Right stick
+Left Mouse/Skill = LT
+Right Mouse/Skill = RT
 */
+
 ; BEGIN CONFIG SECTION
 ; Increase the following value to make the mouse cursor move faster:
 JoyMulti = .5
@@ -48,7 +13,7 @@ JoyMulti = .5
 ; to start moving the mouse.  However, you may need to calibrate your joystick
 ; -- ensuring it's properly centered -- to avoid cursor drift. A perfectly tight
 ; and centered joystick could use a value of 1:
-JoyThreshold = 3
+JoyThreshold = 2
 ; Change the following to true to invert the Y-axis, which causes the mouse to
 ; move vertically in the direction opposite the stick:
 InvertYAxis := false
@@ -64,6 +29,8 @@ ButtonI = 7
 ButtonTab = 8
 ButtonSpace = 2
 PopPotions = 3
+MainSkill = 4
+
 ; END OF CONFIG SECTION -- Don't change anything below this point unless you want
 ; to alter the basic nature of the script.
 #NoEnv							; Prevents bugs caused by environmental variables matching those in the script
@@ -93,6 +60,7 @@ Hotkey, %JoystickPrefix%%ButtonTab%, ButtonTab
 Hotkey, %JoystickPrefix%%ButtonSpace%, ButtonSpace
 Hotkey, %JoystickPrefix%%PopPotions%, PopPotions
 Hotkey, %JoystickPrefix%%ButtonCtrlLeft%, ButtonCtrlLeft
+Hotkey, %JoystickPrefix%%MainSkill%, MainSkill
 OnExit, Agent_Kill
 	
 WinWaitActive, Path of Exile, , 60   	; this command waits 60 seconds for Path of Exile to be the active window before continuing
@@ -104,8 +72,8 @@ if ErrorLevel
 else
 {
 		Sleep 500												; waits this long before initializing: this solves getting incorrect info
-		x_anchor := 956 - 2* 50					; sets the upper left x-plane coord in pixels
-		y_anchor := 486 - 2 * 50					; sets the upper left y-plane coord in pixels
+		x_anchor := 956 - 4 * 50					; sets the upper left x-plane coord in pixels
+		y_anchor := 486 - 4 * 50					; sets the upper left y-plane coord in pixels
 }	
 SetTimer, DIII_Move, -1
 SetTimer, DIII_Mouse, -1
@@ -119,6 +87,7 @@ Agent_Kill:		; kills Agent.exe if it is still running after Diablo and the scrip
 	}
 	ExitApp
 return
+
 ; This section contains the subroutines for Hotkeys that need to send repeated keys while held down
 ButtonCtrlLeft:
 SetMouseDelay, -1  ; Makes movement smoother.
@@ -126,6 +95,7 @@ Send, {Ctrl Down}
 MouseClick, left,,, 1, 0, D  ; Hold down the left mouse button.
 SetTimer, WaitForCtrlLeftButtonUp, 10
 return
+
 WaitForCtrlLeftButtonUp:
 if GetKeyState(JoystickPrefix . ButtonLeft)
 	return  ; The button is still, down, so keep waiting.
@@ -135,11 +105,13 @@ SetMouseDelay, -1  ; Makes movement smoother.
 MouseClick, left,,, 1, 0, U  ; Release the mouse button.
 Send, {Ctrl Up}
 return
+
 ButtonLeft:
 SetMouseDelay, -1  ; Makes movement smoother.
 MouseClick, left,,, 1, 0, D  ; Hold down the left mouse button.
 SetTimer, WaitForLeftButtonUp, 10
 return
+
 WaitForLeftButtonUp:
 if GetKeyState(JoystickPrefix . ButtonLeft)
 	return  ; The button is still, down, so keep waiting.
@@ -148,11 +120,13 @@ SetTimer, WaitForLeftButtonUp, Off
 SetMouseDelay, -1  ; Makes movement smoother.
 MouseClick, left,,, 1, 0, U  ; Release the mouse button.
 return
+
 ButtonRight:
 SetMouseDelay, -1  ; Makes movement smoother.
 MouseClick, right,,, 1, 0, D  ; Hold down the right mouse button.
 SetTimer, WaitForRightButtonUp, 10
 return
+
 WaitForRightButtonUp:
 if GetKeyState(JoystickPrefix . ButtonRight)
 	return  ; The button is still, down, so keep waiting.
@@ -176,6 +150,10 @@ return
 
 PopPotions:
 Send, 12345
+return
+
+MainSkill:
+Send, {E}
 return
 
 ; This timer watches for the triggers to be pressed and converts them into mouse clicks
@@ -319,11 +297,13 @@ DIII_Move:
 	else if (joyX < JoyThresholdLower) OR (joyX > JoyThresholdUpper) OR (joyY < JoyThresholdLower) OR (joyY > JoyThresholdUpper)
 	{
 	
-		x_final := x_anchor + 2 * joyX
-		y_final := y_anchor + 2 * joyY
+		x_final := x_anchor + 4 * joyX
+		y_final := y_anchor + 4 * joyY
 		;MouseGetPos, x_initial, y_initial
 		MouseMove, %x_final%, %y_final%, 0			; Move cursor to direction to be moved towards without clicking
-		Send {LButton}								; sends Move command, you must set your Move keybind to match in game
+		GetKeyState, joyZ, %JoystickNumber%JoyZ 
+		if joyZ between 40 and 60 ;only send left key if right is up
+			Send {LButton}								; sends Move command, you must set your Move keybind to match in game
 		;MouseMove, %x_initial%, %y_initial%, 0  	; returns cursor to where it was before you issued joystick movement
 	}
 											
