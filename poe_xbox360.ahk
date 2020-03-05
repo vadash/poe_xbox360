@@ -278,7 +278,7 @@ return
 
 ; This timer watches for left stick input then moves the character 
 DIII_Move:
-	if !WinExist("Path of Exile") 
+	if !WinActive("Path of Exile") 
 	{
 		SetTimer, DIII_Move, -500				; runs the timer less frequently if Diablo isn't the active window
 		return
