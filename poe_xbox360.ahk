@@ -141,8 +141,8 @@ ButtonSpace:
 	GetKeyState, joyY, %JoystickNumber%JoyY
 	if (joyX < JoyThresholdLower) OR (joyX > JoyThresholdUpper) OR (joyY < JoyThresholdLower) OR (joyY > JoyThresholdUpper)
 	{
-		x_final := x_anchor + 10 * (joyX - 50)
-		y_final := y_anchor + 10 * (joyY - 50)
+		x_final := x_anchor + 7 * (joyX - 50)
+		y_final := y_anchor + 7 * (joyY - 50)
 		MouseMove, %x_final%, %y_final%, 0
 		Send, {Space}
 	}
@@ -154,14 +154,8 @@ return
 
 MainSkill:
 	Send {e down}
-	SetTimer, WaitMainSkillUp, 10
-return
-
-WaitMainSkillUp:
-	if GetKeyState(JoystickPrefix . ButtonMainSkill)  
-	    return
+	Sleep, 100
 	Send {e up}
-	SetTimer, WaitMainSkillUp, off
 return
 
 ; This timer watches for the triggers to be pressed and converts them into mouse clicks
@@ -311,7 +305,7 @@ DIII_Move:
 		MouseMove, %x_final%, %y_final%, 0			; Move cursor to direction to be moved towards without clicking
 		GetKeyState, joyZ, %JoystickNumber%JoyZ 
 		if joyZ between 40 and 60 ;only send left key if right is up
-			Send {MButton}								; sends Move command, you must set your Move keybind to match in game
+			Send {LButton}								; sends Move command, you must set your Move keybind to match in game
 		;MouseMove, %x_initial%, %y_initial%, 0  	; returns cursor to where it was before you issued joystick movement
 	}
 											
