@@ -27,8 +27,8 @@ ButtonCtrlLeft = 1 ; Ctrl Left click
 ButtonRight = 6 ; Right click
 ButtonI = 7 ; Open inventory I
 ButtonTab = 8 ; Open minimap Tab
-ButtonSpace = 2 ; Movement skill E, adapted for flamedash
-PopPotions = 3 ; Send 1 2 3 4 5
+ButtonMovementSkill = 2 ; Movement skill E, adapted for flamedash
+MovementSkillMulti = 12 ; 50 pixels x multiplier
 ButtonMainSkill = 4 ; Send E
 ; <^> keys send q w e r
 
@@ -58,8 +58,7 @@ Hotkey, %JoystickPrefix%%ButtonLeft%, ButtonLeft
 Hotkey, %JoystickPrefix%%ButtonRight%, ButtonRight
 Hotkey, %JoystickPrefix%%ButtonI%, ButtonI
 Hotkey, %JoystickPrefix%%ButtonTab%, ButtonTab
-Hotkey, %JoystickPrefix%%ButtonSpace%, ButtonSpace
-Hotkey, %JoystickPrefix%%PopPotions%, PopPotions
+Hotkey, %JoystickPrefix%%ButtonMovementSkill%, ButtonMovementSkill
 Hotkey, %JoystickPrefix%%ButtonCtrlLeft%, ButtonCtrlLeft
 Hotkey, %JoystickPrefix%%ButtonMainSkill%, MainSkill
 	
@@ -136,20 +135,16 @@ ButtonTab:
 	Send, {Tab}
 return
 
-ButtonSpace:
+ButtonMovementSkill:
 	GetKeyState, joyX, %JoystickNumber%JoyX
 	GetKeyState, joyY, %JoystickNumber%JoyY
 	if (joyX < JoyThresholdLower) OR (joyX > JoyThresholdUpper) OR (joyY < JoyThresholdLower) OR (joyY > JoyThresholdUpper)
 	{
-		x_final := x_anchor + 7 * (joyX - 50)
-		y_final := y_anchor + 7 * (joyY - 50)
+		x_final := x_anchor + MovementSkillMulti * (joyX - 50)
+		y_final := y_anchor + MovementSkillMulti * (joyY - 50)
 		MouseMove, %x_final%, %y_final%, 0
 		Send, {Space}
 	}
-return
-
-PopPotions:
-	Send, 12345
 return
 
 MainSkill:
