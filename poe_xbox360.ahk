@@ -13,7 +13,7 @@ JoyMulti = .5
 ; to start moving the mouse.  However, you may need to calibrate your joystick
 ; -- ensuring it's properly centered -- to avoid cursor drift. A perfectly tight
 ; and centered joystick could use a value of 1:
-JoyThreshold = 2
+JoyThreshold = 3
 ; Change the following to true to invert the Y-axis, which causes the mouse to
 ; move vertically in the direction opposite the stick:
 InvertYAxis := false
@@ -22,14 +22,15 @@ InvertYAxis := false
 JoystickNumber = 1
 ; Change these values to use joystick reassign the buttons on your controller to different actions
 ; Use the Joystick Test Script to find out your joystick's numbers more easily.
-ButtonLeft = 5
-ButtonCtrlLeft = 1
-ButtonRight = 6
-ButtonI = 7
-ButtonTab = 8
-ButtonSpace = 2
-PopPotions = 3
-ButtonMainSkill = 4
+ButtonLeft = 5 ; Left click
+ButtonCtrlLeft = 1 ; Ctrl Left click
+ButtonRight = 6 ; Right click
+ButtonI = 7 ; Open inventory I
+ButtonTab = 8 ; Open minimap Tab
+ButtonSpace = 2 ; Movement skill E, adapted for flamedash
+PopPotions = 3 ; Send 1 2 3 4 5
+ButtonMainSkill = 4 ; Send E
+; <^> keys send q w e r
 
 ; END OF CONFIG SECTION -- Don't change anything below this point unless you want
 ; to alter the basic nature of the script.
@@ -61,7 +62,6 @@ Hotkey, %JoystickPrefix%%ButtonSpace%, ButtonSpace
 Hotkey, %JoystickPrefix%%PopPotions%, PopPotions
 Hotkey, %JoystickPrefix%%ButtonCtrlLeft%, ButtonCtrlLeft
 Hotkey, %JoystickPrefix%%ButtonMainSkill%, MainSkill
-OnExit, Agent_Kill
 	
 WinWaitActive, Path of Exile, , 60   	; this command waits 60 seconds for Path of Exile to be the active window before continuing
 if ErrorLevel
@@ -72,113 +72,113 @@ if ErrorLevel
 else
 {
 		Sleep 500												; waits this long before initializing: this solves getting incorrect info
-		x_anchor := 956 - 2 * 50					; sets the upper left x-plane coord in pixels
-		y_anchor := 486 - 2 * 50					; sets the upper left y-plane coord in pixels
+		x_anchor := 956					; sets the upper left x-plane coord in pixels
+		y_anchor := 486					; sets the upper left y-plane coord in pixels
 }	
 SetTimer, DIII_Move, -1
 SetTimer, DIII_Mouse, -1
 SetTimer, WatchPOV, -1
 return  ; End of auto-execute section.
-;This OnExit subroutine will terminate the Agent.exe if it doesn't close after Path of Exile shuts down
-Agent_Kill:		; kills Agent.exe if it is still running after Diablo and the script close
-	if !WinExist("Path of Exile")
-	{
-		Process, Close, Agent.exe 		
-	}
-	ExitApp
-return
 
 ; This section contains the subroutines for Hotkeys that need to send repeated keys while held down
 ButtonCtrlLeft:
-SetMouseDelay, -1  ; Makes movement smoother.
-Send, {Ctrl Down}
-MouseClick, left,,, 1, 0, D  ; Hold down the left mouse button.
-SetTimer, WaitForCtrlLeftButtonUp, 10
+	SetMouseDelay, -1  ; Makes movement smoother.
+	Send, {Ctrl Down}
+	MouseClick, left,,, 1, 0, D  ; Hold down the left mouse button.
+	SetTimer, WaitForCtrlLeftButtonUp, 10
 return
 
 WaitForCtrlLeftButtonUp:
-if GetKeyState(JoystickPrefix . ButtonLeft)
-	return  ; The button is still, down, so keep waiting.
-; Otherwise, the button has been released.
-SetTimer, WaitForCtrlLeftButtonUp, Off
-SetMouseDelay, -1  ; Makes movement smoother.
-MouseClick, left,,, 1, 0, U  ; Release the mouse button.
-Send, {Ctrl Up}
+	if GetKeyState(JoystickPrefix . ButtonLeft)
+		return  ; The button is still, down, so keep waiting.
+	; Otherwise, the button has been released.
+	SetTimer, WaitForCtrlLeftButtonUp, Off
+	SetMouseDelay, -1  ; Makes movement smoother.
+	MouseClick, left,,, 1, 0, U  ; Release the mouse button.
+	Send, {Ctrl Up}
 return
 
 ButtonLeft:
-SetMouseDelay, -1  ; Makes movement smoother.
-MouseClick, left,,, 1, 0, D  ; Hold down the left mouse button.
-SetTimer, WaitForLeftButtonUp, 10
+	SetMouseDelay, -1  ; Makes movement smoother.
+	MouseClick, left,,, 1, 0, D  ; Hold down the left mouse button.
+	SetTimer, WaitForLeftButtonUp, 10
 return
 
 WaitForLeftButtonUp:
-if GetKeyState(JoystickPrefix . ButtonLeft)
-	return  ; The button is still, down, so keep waiting.
-; Otherwise, the button has been released.
-SetTimer, WaitForLeftButtonUp, Off
-SetMouseDelay, -1  ; Makes movement smoother.
-MouseClick, left,,, 1, 0, U  ; Release the mouse button.
+	if GetKeyState(JoystickPrefix . ButtonLeft)
+		return  ; The button is still, down, so keep waiting.
+	; Otherwise, the button has been released.
+	SetTimer, WaitForLeftButtonUp, Off
+	SetMouseDelay, -1  ; Makes movement smoother.
+	MouseClick, left,,, 1, 0, U  ; Release the mouse button.
 return
 
 ButtonRight:
-SetMouseDelay, -1  ; Makes movement smoother.
-MouseClick, right,,, 1, 0, D  ; Hold down the right mouse button.
-SetTimer, WaitForRightButtonUp, 10
+	SetMouseDelay, -1  ; Makes movement smoother.
+	MouseClick, right,,, 1, 0, D  ; Hold down the right mouse button.
+	SetTimer, WaitForRightButtonUp, 10
 return
 
 WaitForRightButtonUp:
-if GetKeyState(JoystickPrefix . ButtonRight)
-	return  ; The button is still, down, so keep waiting.
-; Otherwise, the button has been released.
-SetTimer, WaitForRightButtonUp, Off
-MouseClick, right,,, 1, 0, U  ; Release the mouse button.
+	if GetKeyState(JoystickPrefix . ButtonRight)
+		return  ; The button is still, down, so keep waiting.
+	; Otherwise, the button has been released.
+	SetTimer, WaitForRightButtonUp, Off
+	MouseClick, right,,, 1, 0, U  ; Release the mouse button.
 return
 
 ; This section contains the Hotkeys that binds the joystick buttons to other actions in the game that don't need held down.
 ButtonI:
-Send, {I}
+	Send, {I}
 return
 
 ButtonTab:
-Send, {Tab}
+	Send, {Tab}
 return
 
 ButtonSpace:
-Send, {Space}
+	GetKeyState, joyX, %JoystickNumber%JoyX
+	GetKeyState, joyY, %JoystickNumber%JoyY
+	if (joyX < JoyThresholdLower) OR (joyX > JoyThresholdUpper) OR (joyY < JoyThresholdLower) OR (joyY > JoyThresholdUpper)
+	{
+		x_final := x_anchor + 10 * (joyX - 50)
+		y_final := y_anchor + 10 * (joyY - 50)
+		MouseMove, %x_final%, %y_final%, 0
+		Send, {Space}
+	}
 return
 
 PopPotions:
-Send, 12345
+	Send, 12345
 return
 
 MainSkill:
-Send {e down}
-SetTimer, WaitMainSkillUp, 10
+	Send {e down}
+	SetTimer, WaitMainSkillUp, 10
 return
 
 WaitMainSkillUp:
-if GetKeyState(JoystickPrefix . ButtonMainSkill)  
-    return
-Send {e up}
-SetTimer, WaitMainSkillUp, off
+	if GetKeyState(JoystickPrefix . ButtonMainSkill)  
+	    return
+	Send {e up}
+	SetTimer, WaitMainSkillUp, off
 return
 
 ; This timer watches for the triggers to be pressed and converts them into mouse clicks
 WaitForLeftTriggerUp:
-GetKeyState, joyZ, %JoystickNumber%JoyZ 
-if joyZ > 60
-    return
-SetTimer, WaitForLeftTriggerUp, off
-Click left up
+	GetKeyState, joyZ, %JoystickNumber%JoyZ 
+	if joyZ > 60
+	    return
+	SetTimer, WaitForLeftTriggerUp, off
+	Click left up
 return
 
 WaitForRightTriggerUp:
-GetKeyState, joyZ, %JoystickNumber%JoyZ 
-if joyZ < 40
-    return		
-SetTimer, WaitForRightTriggerUp, off
-Click right up
+	GetKeyState, joyZ, %JoystickNumber%JoyZ 
+	if joyZ < 40
+	    return		
+	SetTimer, WaitForRightTriggerUp, off
+	Click right up
 return
 
 ; This timer allows the D-pad (POV hat) to sent keypresses to be used for hotkeys
@@ -305,15 +305,15 @@ DIII_Move:
 	else if (joyX < JoyThresholdLower) OR (joyX > JoyThresholdUpper) OR (joyY < JoyThresholdLower) OR (joyY > JoyThresholdUpper)
 	{
 	
-		x_final := x_anchor + 2 * joyX
-		y_final := y_anchor + 2 * joyY
+		x_final := x_anchor + 2 * (joyX - 50)
+		y_final := y_anchor + 2 * (joyY - 50)
 		;MouseGetPos, x_initial, y_initial
 		MouseMove, %x_final%, %y_final%, 0			; Move cursor to direction to be moved towards without clicking
 		GetKeyState, joyZ, %JoystickNumber%JoyZ 
 		if joyZ between 40 and 60 ;only send left key if right is up
-			Send {LButton}								; sends Move command, you must set your Move keybind to match in game
+			Send {MButton}								; sends Move command, you must set your Move keybind to match in game
 		;MouseMove, %x_initial%, %y_initial%, 0  	; returns cursor to where it was before you issued joystick movement
 	}
 											
-SetTimer, DIII_Move, -10	
+	SetTimer, DIII_Move, -10	
 return	
