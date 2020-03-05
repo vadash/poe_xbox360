@@ -28,7 +28,7 @@ ButtonRight = 6 ; Right click
 ButtonI = 7 ; Open inventory I
 ButtonTab = 8 ; Open minimap Tab
 ButtonMovementSkill = 2 ; Movement skill E, adapted for flamedash
-MovementSkillMulti = 12 ; 50 pixels x multiplier
+MovementSkillMulti = 10 ; 50 pixels x multiplier
 ButtonMainSkill = 4 ; Send E
 ; <^> keys send q w e r
 
