@@ -1,6 +1,6 @@
 # poe_xbox360
 
-tested with PS4 gamepad
+tested with PS4 gamepad and skele necro in 3.9
 
 Joystick 1 - original ps4
 
