@@ -2,9 +2,9 @@
 
 tested with PS4 gamepad and skele necro in 3.9
 
-Joystick 1 - original ps4
+Joystick 2 - original ps4
 
-Joystick 2 - emulated xbox with DS4Windows.exe
+Joystick 1 - emulated xbox with DS4Windows.exe
 
 I need emulated since original script was writed for diablo 3
 
