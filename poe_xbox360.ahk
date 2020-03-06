@@ -13,7 +13,7 @@ JoyMulti = .5
 ; to start moving the mouse.  However, you may need to calibrate your joystick
 ; -- ensuring it's properly centered -- to avoid cursor drift. A perfectly tight
 ; and centered joystick could use a value of 1:
-JoyThreshold = 10
+JoyThreshold = 5
 ; Change the following to true to invert the Y-axis, which causes the mouse to
 ; move vertically in the direction opposite the stick:
 InvertYAxis := false
@@ -30,7 +30,7 @@ ButtonTab = 8 ; Open minimap Tab
 ButtonMovementSkill = 2 ; Movement skill E, adapted for flamedash
 MovementSkillMulti = 8.5 ; 50 pixels x multiplier
 ButtonMainSkill = 4 ; Send E
-MainSkillMulti = 5 ; Summon skeletons ahead
+MainSkillMulti = 6 ; Summon skeletons ahead
 ; <^> keys send q w e r
 
 ; END OF CONFIG SECTION -- Don't change anything below this point unless you want
@@ -71,9 +71,9 @@ if ErrorLevel
 }
 else
 {
-		Sleep 500												; waits this long before initializing: this solves getting incorrect info
-		x_anchor := 956					; sets the upper left x-plane coord in pixels
-		y_anchor := 486					; sets the upper left y-plane coord in pixels
+	Sleep 500						; waits this long before initializing: this solves getting incorrect info
+	x_anchor := 956					; sets the upper left x-plane coord in pixels
+	y_anchor := 486					; sets the upper left y-plane coord in pixels
 }	
 SetTimer, DIII_Move, -1
 SetTimer, DIII_Mouse, -1
