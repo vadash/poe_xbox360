@@ -13,7 +13,7 @@ JoyMulti = .5
 ; to start moving the mouse.  However, you may need to calibrate your joystick
 ; -- ensuring it's properly centered -- to avoid cursor drift. A perfectly tight
 ; and centered joystick could use a value of 1:
-JoyThreshold = 3
+JoyThreshold = 10
 ; Change the following to true to invert the Y-axis, which causes the mouse to
 ; move vertically in the direction opposite the stick:
 InvertYAxis := false
@@ -28,8 +28,9 @@ ButtonRight = 6 ; Right click
 ButtonI = 7 ; Open inventory I
 ButtonTab = 8 ; Open minimap Tab
 ButtonMovementSkill = 2 ; Movement skill E, adapted for flamedash
-MovementSkillMulti = 10 ; 50 pixels x multiplier
+MovementSkillMulti = 8.5 ; 50 pixels x multiplier
 ButtonMainSkill = 4 ; Send E
+MainSkillMulti = 5 ; Summon skeletons ahead
 ; <^> keys send q w e r
 
 ; END OF CONFIG SECTION -- Don't change anything below this point unless you want
@@ -60,7 +61,7 @@ Hotkey, %JoystickPrefix%%ButtonI%, ButtonI
 Hotkey, %JoystickPrefix%%ButtonTab%, ButtonTab
 Hotkey, %JoystickPrefix%%ButtonMovementSkill%, ButtonMovementSkill
 Hotkey, %JoystickPrefix%%ButtonCtrlLeft%, ButtonCtrlLeft
-Hotkey, %JoystickPrefix%%ButtonMainSkill%, MainSkill
+Hotkey, %JoystickPrefix%%ButtonMainSkill%, ButtonMainSkill
 	
 WinWaitActive, Path of Exile, , 60   	; this command waits 60 seconds for Path of Exile to be the active window before continuing
 if ErrorLevel
@@ -136,18 +137,42 @@ ButtonTab:
 return
 
 ButtonMovementSkill:
-	GetKeyState, joyX, %JoystickNumber%JoyX
-	GetKeyState, joyY, %JoystickNumber%JoyY
-	if (joyX < JoyThresholdLower) OR (joyX > JoyThresholdUpper) OR (joyY < JoyThresholdLower) OR (joyY > JoyThresholdUpper)
+	if ExtendCursor(MovementSkillMulti)
 	{
-		x_final := x_anchor + MovementSkillMulti * (joyX - 50)
-		y_final := y_anchor + MovementSkillMulti * (joyY - 50)
-		MouseMove, %x_final%, %y_final%, 0
+		Sleep 50
 		Send, {Space}
 	}
 return
 
-MainSkill:
+; Move cursor in direction using analog stick data
+ExtendCursor(multi)
+{
+	global JoyThresholdLower
+	global JoyThresholdUpper
+	global x_anchor
+	global y_anchor
+	GetKeyState, joyX, %JoystickNumber%JoyX
+	GetKeyState, joyY, %JoystickNumber%JoyY
+	;msgbox %joyX% . %joyY%
+	if joyX between JoyThresholdLower and JoyThresholdUpper
+	{
+		if joyY between JoyThresholdLower and JoyThresholdUpper
+		{
+			return FALSE
+		}
+	}
+	if (joyX < JoyThresholdLower or joyX > JoyThresholdUpper) or (joyY < JoyThresholdLower or joyY > JoyThresholdUpper)
+	{
+		x_final := x_anchor + multi * (joyX - 50)
+		y_final := y_anchor + multi * (joyY - 50)
+		MouseMove, %x_final%, %y_final%, 0
+		return TRUE
+	}
+	return FALSE
+}
+
+ButtonMainSkill:
+	ExtendCursor(MainSkillMulti)
 	Send {e down}
 	Sleep, 100
 	Send {e up}
@@ -278,30 +303,12 @@ DIII_Move:
 		SetTimer, DIII_Move, -500				; runs the timer less frequently if Diablo isn't the active window
 		return
 	}
-	
-	GetKeyState, joyX, %JoystickNumber%JoyX
-	GetKeyState, joyY, %JoystickNumber%JoyY
-	
-	if GetKeyState("Shift", "P") ; this if/loop lets Shift still function as stand a stand still key
+
+	if ExtendCursor(2)
 	{
-		Loop
-		{
-			GetKeyState, state, Shift, P
-			if state = U  
-			break				
-		}
-	}
-	else if (joyX < JoyThresholdLower) OR (joyX > JoyThresholdUpper) OR (joyY < JoyThresholdLower) OR (joyY > JoyThresholdUpper)
-	{
-	
-		x_final := x_anchor + 2 * (joyX - 50)
-		y_final := y_anchor + 2 * (joyY - 50)
-		;MouseGetPos, x_initial, y_initial
-		MouseMove, %x_final%, %y_final%, 0			; Move cursor to direction to be moved towards without clicking
 		GetKeyState, joyZ, %JoystickNumber%JoyZ 
 		if joyZ between 40 and 60 ;only send left key if right is up
-			Send {LButton}								; sends Move command, you must set your Move keybind to match in game
-		;MouseMove, %x_initial%, %y_initial%, 0  	; returns cursor to where it was before you issued joystick movement
+			Send {LButton}
 	}
 											
 	SetTimer, DIII_Move, -10	
