@@ -141,6 +141,8 @@ ButtonMovementSkill:
 	{
 		Sleep 50
 		Send, {Space}
+		Sleep, 100
+		Send, {MButton}
 	}
 return
 
@@ -207,7 +209,7 @@ WatchPOV:
 	; Some joysticks might have a smooth/continous POV rather than one in fixed increments.
 	; To support them all, use a range:
 	if POV < 0   ; No angle to report
-		KeyToHoldDown =
+		KeyToHoldDown = 0
 	else if POV > 31500                 ; 315 to 360 degrees: Forward
 		KeyToHoldDown = Q
 	else if POV between 0 and 4500      ; 0 to 45 degrees: Forward
@@ -237,17 +239,12 @@ WatchPOV:
 		SetTimer, WaitForRightTriggerUp, 10
 	}	
 	
-	if KeyToHoldDown = %KeyToHoldDownPrev%  ; The correct key is already down (or no key is needed).
-	{	
-		SetTimer, WatchPOV, -10
-		return  ; Do nothing.
-	}	
-	; Otherwise, release the previous key and press down the new key:
-	SetKeyDelay -1  ; Avoid delays between keystrokes.
-	if KeyToHoldDownPrev   ; There is a previous key to release.
-		Send, {%KeyToHoldDownPrev% up}  ; Release it.
-	if KeyToHoldDown   ; There is a key to press down.
-		Send, {%KeyToHoldDown% down}  ; Press it down.
+	if KeyToHoldDown != 0
+	{
+		Send {%KeyToHoldDown% down}
+		Sleep, 100
+		Send {%KeyToHoldDown% up}
+	}
 	
 	SetTimer, WatchPOV, -10
 return	
