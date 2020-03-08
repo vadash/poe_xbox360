@@ -2,8 +2,13 @@
 Default Controls:
 Move = Left Analog Stick
 Mouse Control = Right Analog Stick
-Left Mouse/Skill = LT
-Right Mouse/Skill = RT
+Left DPAD Q W E R
+X - Ctrl click
+O - Dash (Space)
+[] - Flasks 
+/\ - Gem Swap (1j4)
+Left Mouse/Skill Dash (Space + M3) = L1/L2
+Right Mouse/Skill Main Skill A = R1/R2
 */
 
 ; BEGIN CONFIG SECTION
@@ -14,9 +19,6 @@ JoyMulti = .5
 ; -- ensuring it's properly centered -- to avoid cursor drift. A perfectly tight
 ; and centered joystick could use a value of 1:
 JoyThreshold = 5
-; Change the following to true to invert the Y-axis, which causes the mouse to
-; move vertically in the direction opposite the stick:
-InvertYAxis := false
 ; If your system has more than one joystick, increase this value to use a joystick
 ; other than the first:
 JoystickNumber = 1
@@ -27,9 +29,9 @@ ButtonCtrlLeft = 1 ; Ctrl Left click
 ButtonRight = 6 ; Right click
 ButtonI = 7 ; Open inventory I
 ButtonTab = 8 ; Open minimap Tab
-ButtonMovementSkill = 2 ; Movement skill E, adapted for flamedash
-MovementSkillMulti = 8.5 ; 50 pixels x multiplier
-ButtonMainSkill = 4 ; Send E
+MovementMulti = 1
+ButtonMovementSkill = 2 ; Movement skill Space, adapted for flamedash
+MovementSkillMulti = 3 ; 50 pixels x multiplier
 MainSkillMulti = 6 ; Summon skeletons ahead
 ; <^> keys send q w e r
 
@@ -42,16 +44,11 @@ SetWorkingDir %A_ScriptDir%     ; Sets the script's working directory
 SetDefaultMouseSpeed, 0         ; For character movement without moving the cursor
 SetTitleMatchMode, 3            ; Window title must exactly match Winactive("Path of Exile")
 SetFormat, float, 03  			; Omits decimal point from axis position percentages.
-left_flag = 0
-right_flag = 0
+CanMoveCharacter := true
 
 ; Calculate the axis displacements that are needed to start moving the cursor:
 JoyThresholdUpper := 50 + JoyThreshold
 JoyThresholdLower := 50 - JoyThreshold
-if InvertYAxis
-    YAxisMultiplier = -1
-else
-    YAxisMultiplier = 1
 	
 ; This section creates Hotkeys for Joystick Buttons that repeat the Key being used in subroutines below the auto-execute section
 JoystickPrefix = %JoystickNumber%Joy
@@ -61,9 +58,8 @@ Hotkey, %JoystickPrefix%%ButtonI%, ButtonI
 Hotkey, %JoystickPrefix%%ButtonTab%, ButtonTab
 Hotkey, %JoystickPrefix%%ButtonMovementSkill%, ButtonMovementSkill
 Hotkey, %JoystickPrefix%%ButtonCtrlLeft%, ButtonCtrlLeft
-Hotkey, %JoystickPrefix%%ButtonMainSkill%, ButtonMainSkill
 	
-WinWaitActive, Path of Exile, , 60   	; this command waits 60 seconds for Path of Exile to be the active window before continuing
+WinWaitActive, Path of Exile, , 600000   	; this command waits 60 seconds for Path of Exile to be the active window before continuing
 if ErrorLevel
 {
     MsgBox, Path of Exile not started within the allotted time. Please run the script again then start Path of Exile
@@ -137,13 +133,7 @@ ButtonTab:
 return
 
 ButtonMovementSkill:
-	if ExtendCursor(MovementSkillMulti)
-	{
-		Sleep 50
-		Send, {Space}
-		Sleep, 100
-		Send, {MButton}
-	}
+	FireMovementSkill()
 return
 
 ; Move cursor in direction using analog stick data
@@ -160,42 +150,19 @@ ExtendCursor(multi)
 	{
 		if joyY between JoyThresholdLower and JoyThresholdUpper
 		{
-			return FALSE
+			return false
 		}
 	}
 	if (joyX < JoyThresholdLower or joyX > JoyThresholdUpper) or (joyY < JoyThresholdLower or joyY > JoyThresholdUpper)
 	{
 		x_final := x_anchor + multi * (joyX - 50)
 		y_final := y_anchor + multi * (joyY - 50)
+		SetMouseDelay, -1
 		MouseMove, %x_final%, %y_final%, 0
-		return TRUE
+		return true
 	}
-	return FALSE
+	return false
 }
-
-ButtonMainSkill:
-	ExtendCursor(MainSkillMulti)
-	Send {e down}
-	Sleep, 100
-	Send {e up}
-return
-
-; This timer watches for the triggers to be pressed and converts them into mouse clicks
-WaitForLeftTriggerUp:
-	GetKeyState, joyZ, %JoystickNumber%JoyZ 
-	if joyZ > 60
-	    return
-	SetTimer, WaitForLeftTriggerUp, off
-	Click left up
-return
-
-WaitForRightTriggerUp:
-	GetKeyState, joyZ, %JoystickNumber%JoyZ 
-	if joyZ < 40
-	    return		
-	SetTimer, WaitForRightTriggerUp, off
-	Click right up
-return
 
 ; This timer allows the D-pad (POV hat) to sent keypresses to be used for hotkeys
 WatchPOV:
@@ -204,8 +171,20 @@ WatchPOV:
 		SetTimer, DIII_Mouse, -500				; runs the timer less frequently if Diablo isn't the active window
 		return
 	}
+
+	GetKeyState, joyZ, %JoystickNumber%JoyZ 
+	; Watch for Left Trigger
+	if joyZ > 60
+	{									
+		FireMovementSkill()
+	}
+	; Watch for Right Trigger
+	if joyZ < 40
+	{
+		FireMainSkill()
+	}
+	
 	GetKeyState, POV, JoyPOV  ; Get position of the POV control.
-	KeyToHoldDownPrev = %KeyToHoldDown%  ; Prev now holds the key that was down before (if any).
 	; Some joysticks might have a smooth/continous POV rather than one in fixed increments.
 	; To support them all, use a range:
 	if POV < 0   ; No angle to report
@@ -220,32 +199,17 @@ WatchPOV:
 		KeyToHoldDown = E
 	else                                ; 225 to 315 degrees: Left
 		KeyToHoldDown = R
-	
-	GetKeyState, joyZ, %JoystickNumber%JoyZ 
-	
-	; Watch for Left Trigger
-	if joyZ > 60
-	{	
-		SetMouseDelay, -1  									
-		Click left down  						
-		SetTimer, WaitForLeftTriggerUp, 10
-	}
-	
-	; Watch for Right Trigger
-	if joyZ < 40
+
+	if joyZ between 40 and 60
 	{
-		SetMouseDelay, -1  									
-		Click right down 						
-		SetTimer, WaitForRightTriggerUp, 10
-	}	
-	
-	if KeyToHoldDown != 0
-	{
-		Send {%KeyToHoldDown% down}
-		Sleep, 100
-		Send {%KeyToHoldDown% up}
+		if KeyToHoldDown != 0
+		{
+			Send {%KeyToHoldDown% down}
+			Sleep, 100
+			Send {%KeyToHoldDown% up}
+		}
 	}
-	
+
 	SetTimer, WatchPOV, -10
 return	
 
@@ -288,8 +252,9 @@ DIII_Mouse:
 	if MouseNeedsToBeMoved
 	{
 		SetMouseDelay, -1  ; Makes movement smoother.
-		MouseMove, DeltaU * JoyMulti, DeltaR * JoyMulti * YAxisMultiplier, 0, R
+		MouseMove, DeltaU * JoyMulti, DeltaR * JoyMulti, 0, R
 	}
+
 	SetTimer, DIII_Mouse, -10
 return	
 
@@ -301,12 +266,39 @@ DIII_Move:
 		return
 	}
 
-	if ExtendCursor(2)
+	if CanMoveCharacter
 	{
-		GetKeyState, joyZ, %JoystickNumber%JoyZ 
-		if joyZ between 40 and 60 ;only send left key if right is up
+		if ExtendCursor(MovementMulti)
+		{
 			Send {LButton}
+		}
 	}
-											
-	SetTimer, DIII_Move, -10	
+
+	SetTimer, DIII_Move, -10
 return	
+
+FireMainSkill()
+{
+	global MainSkillMulti, CanMoveCharacter
+
+	CanMoveCharacter := false
+	ExtendCursor(MainSkillMulti)
+	Send {a down}
+	Sleep 100
+	Send {a up}
+	CanMoveCharacter := true
+}
+
+FireMovementSkill()
+{
+	global MovementSkillMulti, CanMoveCharacter
+	
+	CanMoveCharacter := false
+	if ExtendCursor(MovementSkillMulti)
+	{
+		Send, {Space}
+		Sleep, 100
+		Send, {MButton}
+	}
+	CanMoveCharacter := true
+}
