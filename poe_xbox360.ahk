@@ -30,9 +30,7 @@ ButtonRight = 6 ; Right click
 ButtonI = 7 ; Open inventory I
 ButtonTab = 8 ; Open minimap Tab
 MovementMulti = 1
-ButtonMovementSkill = 2 ; Movement skill Space, adapted for flamedash
 MovementSkillMulti = 3 ; 50 pixels x multiplier
-MainSkillMulti = 6 ; Summon skeletons ahead
 ; <^> keys send q w e r
 
 ; END OF CONFIG SECTION -- Don't change anything below this point unless you want
@@ -56,7 +54,6 @@ Hotkey, %JoystickPrefix%%ButtonLeft%, ButtonLeft
 Hotkey, %JoystickPrefix%%ButtonRight%, ButtonRight
 Hotkey, %JoystickPrefix%%ButtonI%, ButtonI
 Hotkey, %JoystickPrefix%%ButtonTab%, ButtonTab
-Hotkey, %JoystickPrefix%%ButtonMovementSkill%, ButtonMovementSkill
 Hotkey, %JoystickPrefix%%ButtonCtrlLeft%, ButtonCtrlLeft
 	
 WinWaitActive, Path of Exile, , 600000   	; this command waits 60 seconds for Path of Exile to be the active window before continuing
@@ -78,6 +75,7 @@ return  ; End of auto-execute section.
 
 ; This section contains the subroutines for Hotkeys that need to send repeated keys while held down
 ButtonCtrlLeft:
+	CanMoveCharacter := true
 	SetMouseDelay, -1  ; Makes movement smoother.
 	Send, {Ctrl Down}
 	MouseClick, left,,, 1, 0, D  ; Hold down the left mouse button.
@@ -130,10 +128,6 @@ return
 
 ButtonTab:
 	Send, {Tab}
-return
-
-ButtonMovementSkill:
-	FireMovementSkill()
 return
 
 ; Move cursor in direction using analog stick data
@@ -251,6 +245,7 @@ DIII_Mouse:
 		DeltaR = 0
 	if MouseNeedsToBeMoved
 	{
+		CanMoveCharacter := true
 		SetMouseDelay, -1  ; Makes movement smoother.
 		MouseMove, DeltaU * JoyMulti, DeltaR * JoyMulti, 0, R
 	}
@@ -298,6 +293,7 @@ FireMovementSkill()
 	{
 		Send, {Space}
 		Sleep, 100
+		Send, 12
 		Send, {MButton}
 	}
 	CanMoveCharacter := true
