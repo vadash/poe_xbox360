@@ -29,8 +29,9 @@ ButtonCtrlLeft = 1 ; Ctrl Left click
 ButtonRight = 6 ; Right click
 ButtonI = 7 ; Open inventory I
 ButtonTab = 8 ; Open minimap Tab
-MovementMulti = 1
+MovementMulti = 2
 MovementSkillMulti = 3 ; 50 pixels x multiplier
+MainSkillMulti = 8
 ; <^> keys send q w e r
 
 ; END OF CONFIG SECTION -- Don't change anything below this point unless you want
@@ -162,7 +163,7 @@ ExtendCursor(multi)
 WatchPOV:
 	if !WinActive("Path of Exile") 
 	{
-		SetTimer, DIII_Mouse, -500				; runs the timer less frequently if Diablo isn't the active window
+		SetTimer, WatchPOV, -500				; runs the timer less frequently if Diablo isn't the active window
 		return
 	}
 
